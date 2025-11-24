@@ -1,4 +1,4 @@
-import React, { ErrorInfo, ReactNode } from 'react';
+import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangleIcon, RefreshIcon } from './Icons';
 
 interface Props {
@@ -15,7 +15,7 @@ interface State {
  * JavaScript errors anywhere in the child component tree, logging them, and displaying
  * a fallback UI instead of crashing the entire React app.
  */
-export class ErrorBoundary extends React.Component<Props, State> {
+export class ErrorBoundary extends Component<Props, State> {
   // Fix: Explicitly declare state property to satisfy TypeScript
   public state: State = {
     hasError: false,

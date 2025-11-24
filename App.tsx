@@ -134,7 +134,7 @@ export default function App() {
       {/* Main Content */}
       <main className="pt-20 px-4 max-w-lg mx-auto">
         {currentView === 'feed' ? (
-          <div className="space-y-6 animate-in fade-in duration-300">
+          <div className="space-y-6 animate-fade-in">
             {posts.map(post => (
               <PostCard key={post.id} post={post} onLike={handleLike} />
             ))}
