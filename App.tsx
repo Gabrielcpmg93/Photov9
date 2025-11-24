@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Post, CreatePostData, User } from './types';
 import { PostCard } from './components/PostCard';
 import { CreatePostModal } from './components/CreatePostModal';
-import { PlusIcon } from './components/Icons';
+import { PlusIcon, UserIcon, GridIcon } from './components/Icons';
+import { ProfileView } from './components/ProfileView';
 
 // Mock current user
 const CURRENT_USER: User = {
@@ -34,17 +35,31 @@ const INITIAL_POSTS: Post[] = [
     likes: 128,
     createdAt: Date.now() - 5000000,
     likedByCurrentUser: true,
+  },
+  {
+    id: 'p3',
+    userId: 'u1',
+    user: CURRENT_USER,
+    imageUrl: 'https://picsum.photos/seed/coffee/600/600',
+    caption: 'First coffee of the day is essential. ☕ #coffee #morning',
+    tags: ['#coffee', '#lifestyle'],
+    likes: 15,
+    createdAt: Date.now() - 2000000,
+    likedByCurrentUser: false,
   }
 ];
+
+type ViewState = 'feed' | 'profile';
 
 export default function App() {
   const [posts, setPosts] = useState<Post[]>(INITIAL_POSTS);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentView, setCurrentView] = useState<ViewState>('feed');
 
-  // Simulate initial loading to show smooth transition
+  // Faster loading: Reduced from 800ms to 300ms for a "snappy" feel
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 800);
+    const timer = setTimeout(() => setIsLoading(false), 300);
     return () => clearTimeout(timer);
   }, []);
 
@@ -61,6 +76,7 @@ export default function App() {
       likedByCurrentUser: false,
     };
     setPosts([newPost, ...posts]);
+    setCurrentView('feed'); // Switch back to feed to see new post
   };
 
   const handleLike = (postId: string) => {
@@ -79,49 +95,87 @@ export default function App() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-dark-bg flex flex-col items-center justify-center">
-        <div className="w-12 h-12 border-4 border-brand-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p className="text-slate-400 font-medium animate-pulse">Initializing PhotoStream...</p>
+        <div className="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p className="text-slate-400 font-medium text-sm animate-pulse">Loading...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-dark-bg text-dark-text font-sans">
+    <div className="min-h-screen bg-dark-bg text-dark-text font-sans pb-20 sm:pb-10">
       {/* Navbar */}
-      <header className="fixed top-0 left-0 right-0 z-40 bg-dark-bg/80 backdrop-blur-md border-b border-slate-800">
+      <header className="fixed top-0 left-0 right-0 z-40 bg-dark-bg/95 backdrop-blur-md border-b border-slate-800">
         <div className="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-tr from-brand-500 to-purple-600 rounded-lg flex items-center justify-center">
+          
+          {/* Logo Area - Click to go home */}
+          <button onClick={() => setCurrentView('feed')} className="flex items-center gap-2 focus:outline-none">
+            <div className="w-8 h-8 bg-gradient-to-tr from-brand-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-brand-900/20">
               <span className="text-white font-bold text-lg">P</span>
             </div>
-            <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-400 to-white">
+            <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-400 to-white hidden sm:block">
               PhotoStream
             </h1>
-          </div>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="bg-brand-600 hover:bg-brand-500 text-white p-2 rounded-full transition-all hover:scale-110 active:scale-95 shadow-lg shadow-brand-900/50"
-            aria-label="Create Post"
-          >
-            <PlusIcon className="w-6 h-6" />
           </button>
+
+          {/* Navigation Actions */}
+          <div className="flex items-center gap-4">
+             <button
+              onClick={() => setIsModalOpen(true)}
+              className="bg-brand-600 hover:bg-brand-500 text-white p-2 rounded-full transition-all hover:scale-105 active:scale-95 shadow-lg shadow-brand-900/50"
+              aria-label="Create Post"
+            >
+              <PlusIcon className="w-5 h-5" />
+            </button>
+
+            <button 
+              onClick={() => setCurrentView(currentView === 'profile' ? 'feed' : 'profile')}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors border ${
+                currentView === 'profile' 
+                  ? 'bg-slate-800 border-brand-500/50 text-white' 
+                  : 'bg-transparent border-transparent text-slate-400 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              {currentView === 'profile' ? (
+                 <UserIcon className="w-6 h-6 text-brand-400" />
+              ) : (
+                 <img src={CURRENT_USER.avatar} alt="Profile" className="w-8 h-8 rounded-full object-cover ring-2 ring-transparent hover:ring-brand-500/50" />
+              )}
+            </button>
+          </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="pt-20 pb-10 px-4 max-w-lg mx-auto">
-        <div className="space-y-6">
-          {posts.map(post => (
-            <PostCard key={post.id} post={post} onLike={handleLike} />
-          ))}
+      <main className="pt-20 px-4 max-w-lg mx-auto">
+        {currentView === 'feed' ? (
+          <div className="space-y-6 animate-in fade-in duration-300">
+            {posts.map(post => (
+              <PostCard key={post.id} post={post} onLike={handleLike} />
+            ))}
 
-          {posts.length === 0 && (
-            <div className="text-center py-20 bg-dark-card rounded-xl border border-dashed border-slate-700">
-              <p className="text-slate-400">No posts yet. Be the first!</p>
-            </div>
-          )}
-        </div>
+            {posts.length === 0 && (
+              <div className="text-center py-20 bg-dark-card rounded-xl border border-dashed border-slate-700">
+                <p className="text-slate-400">No posts yet. Be the first!</p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <ProfileView user={CURRENT_USER} posts={posts} />
+        )}
       </main>
+
+      {/* Mobile Bottom Navigation (Optional, for better mobile UX) */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-dark-card border-t border-slate-800 flex justify-around p-3 z-30">
+         <button onClick={() => setCurrentView('feed')} className={`p-2 rounded-lg ${currentView === 'feed' ? 'text-brand-400 bg-brand-900/10' : 'text-slate-500'}`}>
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+         </button>
+         <button onClick={() => setIsModalOpen(true)} className="bg-brand-600 text-white p-3 rounded-full -mt-8 shadow-lg shadow-brand-900/50 border-4 border-dark-bg">
+            <PlusIcon className="w-6 h-6" />
+         </button>
+         <button onClick={() => setCurrentView('profile')} className={`p-2 rounded-lg ${currentView === 'profile' ? 'text-brand-400 bg-brand-900/10' : 'text-slate-500'}`}>
+            <UserIcon className="w-6 h-6" />
+         </button>
+      </div>
 
       {/* Create Post Modal */}
       <CreatePostModal

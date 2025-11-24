@@ -63,17 +63,18 @@ export const analyzeImageForPost = async (base64Image: string): Promise<{ captio
     };
 
   } catch (error: any) {
-    // 2. Handle specific 404 NOT_FOUND errors gracefully
-    if (error.message && error.message.includes("404")) {
-       console.error("Gemini Model Not Found (404). Check region availability or model name.", error);
+    // 2. Handle specific 404 NOT_FOUND and other API errors gracefully
+    const errorMessage = error?.message || "";
+    if (errorMessage.includes("404") || errorMessage.includes("NOT_FOUND")) {
+       console.error("Gemini Model/Endpoint 404. Serving fallback content.", error);
     } else {
        console.error("Gemini analysis failed:", error);
     }
 
     // 3. Fallback data prevents app crash
     return {
-      caption: "Check out this amazing photo! ✨",
-      tags: ["#photo", "#moments", "#life"]
+      caption: "Just a moment in time. ✨",
+      tags: ["#photo", "#daily", "#moments"]
     };
   }
 };

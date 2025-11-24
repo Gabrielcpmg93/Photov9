@@ -1,4 +1,4 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { ErrorInfo, ReactNode } from 'react';
 import { AlertTriangleIcon, RefreshIcon } from './Icons';
 
 interface Props {
@@ -15,7 +15,8 @@ interface State {
  * JavaScript errors anywhere in the child component tree, logging them, and displaying
  * a fallback UI instead of crashing the entire React app.
  */
-export class ErrorBoundary extends Component<Props, State> {
+export class ErrorBoundary extends React.Component<Props, State> {
+  // Fix: Explicitly declare state property to satisfy TypeScript
   public state: State = {
     hasError: false,
     error: null,
@@ -34,6 +35,7 @@ export class ErrorBoundary extends Component<Props, State> {
   };
 
   public render() {
+    // Fix: State is now correctly typed
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-dark-bg flex items-center justify-center p-4">
@@ -45,7 +47,7 @@ export class ErrorBoundary extends Component<Props, State> {
             </div>
             <h1 className="text-2xl font-bold text-white mb-2">Oops! Something went wrong.</h1>
             <p className="text-dark-muted mb-6">
-              We prevented a screen crash (White/Blue Screen). This is likely a temporary glitch.
+              We prevented a screen crash. This is likely a temporary glitch.
             </p>
             {this.state.error && (
                 <div className="bg-black/30 p-3 rounded text-left text-xs font-mono text-red-300 mb-6 overflow-auto max-h-32">
@@ -64,6 +66,7 @@ export class ErrorBoundary extends Component<Props, State> {
       );
     }
 
+    // Fix: Props are now correctly typed
     return this.props.children;
   }
 }
