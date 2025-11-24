@@ -1,0 +1,8 @@
+{
+  "name": "PhotoStream AI",
+  "description": "A robust, AI-enhanced social photo feed. Features intelligent image captioning, tagging, and a crash-resistant architecture to prevent common screen errors.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
