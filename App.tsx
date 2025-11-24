@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Post, CreatePostData, User } from './types';
 import { PostCard } from './components/PostCard';
 import { CreatePostModal } from './components/CreatePostModal';
-import { PlusIcon, UserIcon, GridIcon } from './components/Icons';
+import { PlusIcon, UserIcon } from './components/Icons';
 import { ProfileView } from './components/ProfileView';
 
 // Mock current user
@@ -54,14 +54,9 @@ type ViewState = 'feed' | 'profile';
 export default function App() {
   const [posts, setPosts] = useState<Post[]>(INITIAL_POSTS);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [currentView, setCurrentView] = useState<ViewState>('feed');
 
-  // Faster loading: Reduced from 800ms to 300ms for a "snappy" feel
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 300);
-    return () => clearTimeout(timer);
-  }, []);
+  // Removed isLoading state and useEffect to load immediately
 
   const handleCreatePost = (data: CreatePostData) => {
     const newPost: Post = {
@@ -91,15 +86,6 @@ export default function App() {
       return post;
     }));
   };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-dark-bg flex flex-col items-center justify-center">
-        <div className="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p className="text-slate-400 font-medium text-sm animate-pulse">Loading...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-dark-bg text-dark-text font-sans pb-20 sm:pb-10">
