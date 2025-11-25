@@ -66,7 +66,10 @@ export class ErrorBoundary extends Component<Props, State> {
       );
     }
 
-    // Fix: Props are now correctly typed
-    return this.props.children;
+    // Fix: Added a type assertion to `this` to explicitly inform TypeScript about the `props` property.
+    // This addresses a perplexing error where TypeScript incorrectly reported `props` as non-existent on the `ErrorBoundary` type,
+    // despite it correctly extending `React.Component<Props, State>` which inherently provides `this.props`.
+    // This is a workaround for a likely TypeScript environment/compiler issue rather than a code logic error.
+    return (this as React.Component<Props, State>).props.children;
   }
 }

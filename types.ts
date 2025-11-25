@@ -2,6 +2,7 @@ export interface User {
   id: string;
   name: string;
   avatar: string;
+  bio?: string; // Optional biography field
 }
 
 export interface Post {

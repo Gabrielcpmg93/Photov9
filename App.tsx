@@ -4,12 +4,14 @@ import { PostCard } from './components/PostCard';
 import { CreatePostModal } from './components/CreatePostModal';
 import { PlusIcon, UserIcon } from './components/Icons';
 import { ProfileView } from './components/ProfileView';
+import { EditProfileModal } from './components/EditProfileModal'; // Import the new modal
 
 // Mock current user
-const CURRENT_USER: User = {
+const INITIAL_CURRENT_USER: User = {
   id: 'u1',
   name: 'Alex Developer',
   avatar: 'https://picsum.photos/seed/alex/100/100',
+  bio: 'Passionate frontend engineer building innovative web experiences. Loves photography, coffee, and open source. #webdev #react #typescript',
 };
 
 // Initial data to prevent empty screen (preventing "Black Screen" feeling)
@@ -28,7 +30,7 @@ const INITIAL_POSTS: Post[] = [
   {
     id: 'p2',
     userId: 'u3',
-    user: { id: 'u3', name: 'Tech Daily', avatar: 'https://picsum.photos/seed/tech/100/100' },
+    user: { id: 'u3', name: 'Tech Daily', avatar: 'https://picsum.photos/seed/computer/600/600' },
     imageUrl: 'https://picsum.photos/seed/computer/600/600',
     caption: 'Coding setup for the weekend. Dark mode always. 💻 #coding #setup',
     tags: ['#coding', '#setup', '#workspace'],
@@ -39,7 +41,7 @@ const INITIAL_POSTS: Post[] = [
   {
     id: 'p3',
     userId: 'u1',
-    user: CURRENT_USER,
+    user: INITIAL_CURRENT_USER,
     imageUrl: 'https://picsum.photos/seed/coffee/600/600',
     caption: 'First coffee of the day is essential. ☕ #coffee #morning',
     tags: ['#coffee', '#lifestyle'],
@@ -52,17 +54,17 @@ const INITIAL_POSTS: Post[] = [
 type ViewState = 'feed' | 'profile';
 
 export default function App() {
+  const [currentUser, setCurrentUser] = useState<User>(INITIAL_CURRENT_USER);
   const [posts, setPosts] = useState<Post[]>(INITIAL_POSTS);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false); // New state for edit profile modal
   const [currentView, setCurrentView] = useState<ViewState>('feed');
-
-  // Removed isLoading state and useEffect to load immediately
 
   const handleCreatePost = (data: CreatePostData) => {
     const newPost: Post = {
       id: Date.now().toString(),
-      userId: CURRENT_USER.id,
-      user: CURRENT_USER,
+      userId: currentUser.id,
+      user: currentUser,
       imageUrl: data.imageUrl,
       caption: data.caption,
       tags: data.tags,
@@ -85,6 +87,16 @@ export default function App() {
       }
       return post;
     }));
+  };
+
+  const handleUpdateProfile = (updatedName: string, updatedBio: string) => {
+    const updatedUser = { ...currentUser, name: updatedName, bio: updatedBio };
+    setCurrentUser(updatedUser);
+    // Update posts that belong to the current user to reflect the new name/bio if needed (for consistency)
+    setPosts(prevPosts => prevPosts.map(post => 
+      post.userId === currentUser.id ? { ...post, user: updatedUser } : post
+    ));
+    setIsEditProfileModalOpen(false);
   };
 
   return (
@@ -124,7 +136,7 @@ export default function App() {
               {currentView === 'profile' ? (
                  <UserIcon className="w-6 h-6 text-brand-400" />
               ) : (
-                 <img src={CURRENT_USER.avatar} alt="Profile" className="w-8 h-8 rounded-full object-cover ring-2 ring-transparent hover:ring-brand-500/50" />
+                 <img src={currentUser.avatar} alt="Profile" className="w-8 h-8 rounded-full object-cover ring-2 ring-transparent hover:ring-brand-500/50" />
               )}
             </button>
           </div>
@@ -146,7 +158,11 @@ export default function App() {
             )}
           </div>
         ) : (
-          <ProfileView user={CURRENT_USER} posts={posts} />
+          <ProfileView 
+            user={currentUser} 
+            posts={posts} 
+            onEditProfile={() => setIsEditProfileModalOpen(true)} // Pass handler to open modal
+          />
         )}
       </main>
 
@@ -168,6 +184,14 @@ export default function App() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleCreatePost}
+      />
+
+      {/* Edit Profile Modal */}
+      <EditProfileModal
+        isOpen={isEditProfileModalOpen}
+        onClose={() => setIsEditProfileModalOpen(false)}
+        user={currentUser}
+        onSubmit={handleUpdateProfile}
       />
     </div>
   );

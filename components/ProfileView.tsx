@@ -5,9 +5,10 @@ import { GridIcon, HeartIcon } from './Icons';
 interface ProfileViewProps {
   user: User;
   posts: Post[];
+  onEditProfile: () => void; // New prop for editing profile
 }
 
-export const ProfileView: React.FC<ProfileViewProps> = ({ user, posts }) => {
+export const ProfileView: React.FC<ProfileViewProps> = ({ user, posts, onEditProfile }) => {
   const userPosts = posts.filter(p => p.userId === user.id);
   const totalLikes = userPosts.reduce((acc, curr) => acc + curr.likes, 0);
 
@@ -24,9 +25,14 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ user, posts }) => {
           
           <div className="flex-1 text-center sm:text-left">
             <h2 className="text-2xl font-bold text-white mb-1">{user.name}</h2>
-            <p className="text-brand-400 text-sm mb-4">@alex_dev • Photographer</p>
+            <p className="text-brand-400 text-sm mb-2">@{user.name.toLowerCase().replace(/\s/g, '_')} • Photographer</p>
+            {user.bio && (
+              <p className="text-slate-300 text-sm mb-4 max-w-sm sm:max-w-none mx-auto sm:mx-0">
+                {user.bio}
+              </p>
+            )}
             
-            <div className="flex justify-center sm:justify-start gap-8">
+            <div className="flex justify-center sm:justify-start gap-8 mt-4">
               <div className="text-center">
                 <span className="block text-xl font-bold text-white">{userPosts.length}</span>
                 <span className="text-xs text-slate-400 uppercase tracking-wider">Posts</span>
@@ -40,6 +46,12 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ user, posts }) => {
                 <span className="text-xs text-slate-400 uppercase tracking-wider">Followers</span>
               </div>
             </div>
+            <button
+              onClick={onEditProfile}
+              className="mt-6 px-4 py-2 bg-slate-800 text-slate-300 rounded-lg border border-slate-700 hover:bg-slate-700 hover:text-white transition-colors text-sm font-medium"
+            >
+              Edit Profile
+            </button>
           </div>
         </div>
       </div>
